@@ -1,17 +1,33 @@
-name: CI Test Workflow   # Just a name to identify the workflow
+name: Python CI Pipeline
 
-on:                      # Events that trigger this workflow
-  push:                  # Runs when you push to GitHub
+on:
+  push:
     branches:
-      - main             # Only on the main branch
-  pull_request:          # Also runs when a PR is opened/updated
+      - main
+  pull_request:
 
-jobs:                    # A workflow can have multiple jobs
-  hello-world:           # Name of the first job
-    runs-on: ubuntu-latest   # GitHub gives us a free Ubuntu VM
-    steps:               # Steps inside this job
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest   # GitHub runner (Ubuntu VM)
+
+    steps:
+      # Step 1: Checkout repo code
       - name: Checkout code
-        uses: actions/checkout@v3  # Brings repo code into VM
+        uses: actions/checkout@v3
 
-      - name: Print message
-        run: echo "✅ GitHub Actions is working!"
+      # Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"   # Match your repo's Python version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Run unit tests
+      - name: Run tests
+        run: |
+          pytest tests/ --maxfail=1 --disable-warnings -q
